@@ -58,3 +58,14 @@ myFoldr :: Foldable t => (a -> b -> b) -> b -> t a -> b
 myFoldr f b ta = foldMap (Endo . f) ta `appEndo` b
 
 -}
+
+{-
+class Foldable (t :: * -> *) where
+  ...
+  foldMap :: Monoid m => (a -> m) -> t a -> m
+  ...
+    -- Defined in ‘Data.Foldable’
+
+  foldMap f = foldr (mappend . f) mempty
+
+-}
