@@ -108,3 +108,8 @@ main = do
   putStrLn $ "nested over lens:        " ++ show (hero & (weaponLens . magicGemLens . gemLevelLens) %~ (+1))
   putStrLn $ "nested set lens:         " ++ show (hero & (weaponLens . magicGemLens . gemLevelLens) .~ 25)
   putStrLn $ "nested view lens:        " ++ show (hero ^. (weaponLens . magicGemLens . gemLevelLens))
+
+{-
+see https://zhuanlan.zhihu.com/p/30544410
+
+-}
