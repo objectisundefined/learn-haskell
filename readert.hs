@@ -22,7 +22,7 @@ instance (Monad m) => Monad (ReaderT r m) where
     runReaderT (k a) r
 
 liftReaderT :: m a -> ReaderT r m a
-liftReaderT m = ReaderT $ \ r -> m
+liftReaderT m = ReaderT $ \r -> m
 -- liftReaderT m = ReaderT (const m)
 
 ask :: Monad m => ReaderT r m r

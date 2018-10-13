@@ -65,6 +65,7 @@ data Greet = Greet {
   , greetFoot :: String
 } deriving Show
 
+-- isomorphic with Reader String Greet
 renderGreeting :: ReaderT String Identity Greet
 renderGreeting = do
   n <- ask
