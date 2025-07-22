@@ -4,6 +4,45 @@ This repository showcases the **powerful features and capabilities of Haskell** 
 
 ## 🚀 New Advanced Examples (Recently Added)
 
+### **Side Effects & IO Management** (🆕 **Comprehensive Collection**)
+
+#### **Software Transactional Memory** (`software-transactional-memory.hs`)
+- Composable atomic operations without locks
+- Bank transfer examples with automatic retry
+- Producer-consumer patterns with STM queues
+- Deadlock-free concurrent programming
+- STM alternatives with `orElse` for fallback strategies
+
+#### **Effect Systems** (`effect-systems.hs`)
+- Monad Transformer stacks (ReaderT + StateT + ExceptT + IO)
+- Writer monad for logging and audit trails
+- Exception handling with ExceptT composition
+- Resource management patterns with bracket
+- Custom effect interpretations and DSLs
+
+#### **Exception Handling** (`exception-handling.hs`)
+- Pure error handling with Maybe and Either types
+- Custom exception types for domain-specific errors
+- Safe resource management with bracket patterns
+- Retry mechanisms and graceful error recovery
+- Multiple exception handlers and error composition
+
+#### **Resource Management** (`resource-management.hs`)
+- RAII patterns for automatic cleanup
+- File, network, and memory resource safety
+- Lock management and critical sections
+- Resource pools for connection management
+- Monitoring and tracking resource usage
+
+#### **IO and Side Effects** (`io-side-effects.hs`)
+- Pure vs impure function distinctions
+- Mutable references (IORef, MVar, STM)
+- Random number generation and shuffling
+- Time operations and performance measurement
+- Network programming and HTTP requests
+- Concurrent programming patterns
+- Lazy IO considerations and pitfalls
+
 ### **Lazy Evaluation & Infinite Data Structures** (`lazy-infinite-structures.hs`)
 - Infinite lists and streams with constant memory usage
 - Fibonacci sequences, prime sieves, and Hamming numbers
@@ -121,13 +160,22 @@ ghci category-theory-practice.hs
 
 ## 📚 Learning Path Recommendation
 
+### **Foundation Track**
 1. **Start with fundamentals**: `five-fundamental-monads.hs`
-2. **Explore type safety**: `type-level-programming.hs`
-3. **Understand laziness**: `lazy-infinite-structures.hs`
-4. **Learn concurrency**: `advanced-concurrency.hs`
-5. **Master abstractions**: `category-theory-practice.hs`
-6. **Build DSLs**: `free-monads-dsl.hs`
-7. **Advanced techniques**: `metaprogramming-generics.hs`
+2. **Understand IO and side effects**: `io-side-effects.hs`
+3. **Master error handling**: `exception-handling.hs`
+4. **Learn effect composition**: `effect-systems.hs`
+
+### **Advanced Track**
+5. **Explore type safety**: `type-level-programming.hs`
+6. **Understand laziness**: `lazy-infinite-structures.hs`
+7. **Master concurrency**: `advanced-concurrency.hs` + `software-transactional-memory.hs`
+8. **Resource management**: `resource-management.hs`
+
+### **Expert Track**
+9. **Master abstractions**: `category-theory-practice.hs`
+10. **Build DSLs**: `free-monads-dsl.hs`
+11. **Advanced techniques**: `metaprogramming-generics.hs`
 
 ## 🎓 What Makes Haskell Unique
 
@@ -137,6 +185,9 @@ ghci category-theory-practice.hs
 - **Mathematical foundation**: Based on solid theoretical principles
 - **Composability**: Small pieces combine into powerful systems
 - **Safety**: Many runtime errors become compile-time errors
+- **Effect control**: Side effects are tracked in the type system, ensuring predictable behavior
+- **Concurrency excellence**: STM and async provide safe, composable concurrent programming
+- **Pure functional core**: Referential transparency enables powerful optimization and reasoning
 
 These examples demonstrate that Haskell isn't just an academic language—it's a powerful tool for building robust, efficient, and maintainable software systems.
 
