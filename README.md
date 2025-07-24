@@ -1,396 +1,196 @@
-# AI Agent Framework - A LangGraph-like Framework in Haskell
+# Learn Haskell - Comprehensive Examples Collection
 
-A functional, type-safe AI agent framework inspired by LangGraph, built in Haskell. This framework provides a powerful foundation for building AI agent workflows with graph-based execution, state management, and composable agents.
+This repository showcases the **powerful features and capabilities of Haskell** through practical, well-documented examples. From basic concepts to advanced programming techniques, these examples demonstrate why Haskell is one of the most expressive and mathematically elegant programming languages.
 
-## Features
+## 🚀 New Advanced Examples (Recently Added)
 
-- **🔄 Graph-Based Execution**: Build complex workflows as directed graphs with conditional routing
-- **🏠 State Management**: Thread-safe state management with STM, history tracking, and rollback capabilities
-- **🤖 Composable Agents**: Modular agents with different capabilities that can be chained and combined
-- **🛠️ Tool Integration**: Easy integration of external tools and functions
-- **⚡ Concurrent Execution**: Support for sequential, parallel, and conditional execution strategies
-- **💾 Memory System**: Built-in memory management for agent conversations and learning
-- **🔍 Monitoring & Metrics**: Comprehensive execution metrics and visualization
-- **🎯 Type Safety**: Leverages Haskell's type system for reliable, compile-time guarantees
+### **Side Effects & IO Management** (🆕 **Comprehensive Collection**)
 
-## Quick Start
+#### **Software Transactional Memory** (`software-transactional-memory.hs`)
+- Composable atomic operations without locks
+- Bank transfer examples with automatic retry
+- Producer-consumer patterns with STM queues
+- Deadlock-free concurrent programming
+- STM alternatives with `orElse` for fallback strategies
 
-### Prerequisites
+#### **Effect Systems** (`effect-systems.hs`)
+- Monad Transformer stacks (ReaderT + StateT + ExceptT + IO)
+- Writer monad for logging and audit trails
+- Exception handling with ExceptT composition
+- Resource management patterns with bracket
+- Custom effect interpretations and DSLs
 
-- GHC 9.0+ 
-- Cabal 3.0+
+#### **Exception Handling** (`exception-handling.hs`)
+- Pure error handling with Maybe and Either types
+- Custom exception types for domain-specific errors
+- Safe resource management with bracket patterns
+- Retry mechanisms and graceful error recovery
+- Multiple exception handlers and error composition
 
-### Installation
+#### **Resource Management** (`resource-management.hs`)
+- RAII patterns for automatic cleanup
+- File, network, and memory resource safety
+- Lock management and critical sections
+- Resource pools for connection management
+- Monitoring and tracking resource usage
+
+#### **IO and Side Effects** (`io-side-effects.hs`)
+- Pure vs impure function distinctions
+- Mutable references (IORef, MVar, STM)
+- Random number generation and shuffling
+- Time operations and performance measurement
+- Network programming and HTTP requests
+- Concurrent programming patterns
+- Lazy IO considerations and pitfalls
+
+### **Lazy Evaluation & Infinite Data Structures** (`lazy-infinite-structures.hs`)
+- Infinite lists and streams with constant memory usage
+- Fibonacci sequences, prime sieves, and Hamming numbers
+- Lazy evaluation examples and space-efficient algorithms
+- Pascal's triangle and infinite trees
+
+### **Type-Level Programming** (`type-level-programming.hs`) 
+- Compile-time computation with type families
+- Length-indexed vectors for array safety
+- Type-level arithmetic and logic
+- Phantom types for units of measure
+- GADTs for expressing complex constraints
+
+### **Free Monads & DSLs** (`free-monads-dsl.hs`)
+- Domain Specific Language creation
+- Separation of program structure from interpretation
+- Multiple interpreters (testing, production, logging)
+- Console I/O, file system, and database DSLs
+
+### **Category Theory in Practice** (`category-theory-practice.hs`)
+- Functors, Applicatives, and Monads explained
+- Kleisli composition and arrows
+- Natural transformations and Yoneda lemma
+- Comonads and mathematical abstractions
+- Real-world applications of abstract mathematics
+
+### **Advanced Concurrency** (`advanced-concurrency.hs`)
+- Software Transactional Memory (STM) for lock-free programming
+- Parallel algorithms with `async`
+- Message passing and actor patterns
+- Lock-free data structures and rate limiting
+- High-performance concurrent programming
+
+### **Metaprogramming & Generics** (`metaprogramming-generics.hs`)
+- Template Haskell for compile-time code generation
+- Generic programming with GHC.Generics
+- Automatic lens generation
+- Reflective programming with Data.Data
+- Type-safe metaprogramming techniques
+
+## 🎯 Existing Examples (Foundational Concepts)
+
+### **Core Language Features**
+- **Monads**: Reader, Writer, State transformers (`five-fundamental-monads.hs`)
+- **Lenses**: Simple and advanced lens libraries (`simple-lens.hs`, `advanced-lens.hs`)
+- **JSON Parsing**: Full parser combinator implementation (`json-parser.hs`)
+- **Template Haskell**: Metaprogramming examples (`template-programming.hs`)
+
+### **Data Structures & Algorithms**
+- **Red-Black Trees**: Self-balancing binary search trees (`red-black-tree.hs`)
+- **Binary Trees**: Tree operations and traversals (`binary-tree.hs`) 
+- **Hash Maps/Sets**: Functional hash table implementations (`hash-map.hs`, `hash-set.hs`)
+- **HList**: Heterogeneous lists with type safety (`hlist.hs`)
+
+### **Advanced Type System**
+- **GADTs**: Generalized Algebraic Data Types (`learn-gadt.hs`)
+- **Dependent Types**: Type-level programming (`learn-dependent-type.hs`)
+- **Zipper Data Structures**: Functional navigation (`zipper-data-structures.hs`)
+
+### **Practical Applications**
+- **Argument Parsing**: Command-line interface building (`arg-parser.hs`)
+- **Web Scraping**: Git repository parsing (`git-parser.hs`)
+- **Mathematical Algorithms**: Complex number theory (`last-digit.hs`, `narcissistic-number.hs`)
+- **Game Logic**: N-Queens problem, Josephus permutation (`n-queens-problem.hs`)
+
+### **Concurrent Programming**
+- **STM Examples**: Software Transactional Memory (`skip-chan.hs`)
+- **State Management**: IO state handling (`state-in-io.hs`)
+- **Parallel Processing**: Concurrent data structures
+
+## 🔥 Why These Examples Showcase Haskell's Power
+
+### **1. Mathematical Elegance**
+- **Category Theory**: Direct implementation of mathematical concepts
+- **Type Safety**: Compile-time guarantees prevent entire classes of bugs
+- **Composability**: Small functions combine to create complex behaviors
+
+### **2. Advanced Type System**
+- **Type-Level Computation**: Calculations performed at compile time
+- **GADTs**: Express complex invariants in the type system
+- **Type Families**: Generic programming with type-level functions
+
+### **3. Lazy Evaluation**
+- **Infinite Data Structures**: Work with unlimited data efficiently
+- **Space Efficiency**: Only compute what's needed, when it's needed
+- **Elegant Algorithms**: Express complex logic naturally
+
+### **4. Concurrency Excellence**
+- **STM**: Lock-free programming that's both safe and composable
+- **Parallelism**: Automatic parallel execution with referential transparency
+- **Message Passing**: Safe concurrent communication patterns
+
+### **5. Metaprogramming Power**
+- **Template Haskell**: Generate code at compile time
+- **Generic Programming**: Write once, work for all types
+- **DSL Creation**: Build domain-specific languages easily
+
+### **6. Functional Purity**
+- **Referential Transparency**: Functions always return the same output for the same input
+- **Immutability**: Data structures that can't be accidentally modified
+- **Effect Management**: Pure functions with controlled side effects
+
+## 🚀 Getting Started
 
 ```bash
-git clone <repository-url>
-cd ai-agent-framework
-cabal update
-cabal build
+# Try the examples
+ghc -o lazy-demo lazy-infinite-structures.hs && ./lazy-demo
+ghc -o types-demo type-level-programming.hs && ./types-demo
+ghc -o concurrency-demo advanced-concurrency.hs && ./concurrency-demo
+
+# Interactive exploration
+ghci free-monads-dsl.hs
+ghci category-theory-practice.hs
 ```
 
-### Running Examples
-
-```bash
-# Run all examples
-cabal run ai-agent-example all
-
-# Run specific examples
-cabal run ai-agent-example simple
-cabal run ai-agent-example data
-cabal run ai-agent-example conditional
-cabal run ai-agent-example parallel
-```
-
-## Architecture Overview
-
-The framework consists of several core components:
-
-### Core Components
-
-1. **State Management** (`AIAgent.Core.State`)
-   - Thread-safe state with STM
-   - History tracking and snapshots
-   - Rollback capabilities
-
-2. **Nodes** (`AIAgent.Core.Node`) 
-   - Computational units in the graph
-   - Support for pure, IO, and async operations
-   - Error handling and retries
-
-3. **Graphs** (`AIAgent.Core.Graph`)
-   - Directed graph structure
-   - Conditional edges and routing
-   - Validation and cycle detection
-
-4. **Executor** (`AIAgent.Core.Executor`)
-   - Graph execution engine
-   - Multiple execution strategies
-   - Monitoring and metrics
-
-### Agent System
-
-5. **Base Agents** (`AIAgent.Agents.Base`)
-   - Agent interface and capabilities
-   - Memory management
-   - Agent combinators
-
-6. **LLM Agents** (`AIAgent.Agents.LLM`)
-   - Language model integration
-   - Placeholder for future LLM providers
-
-### Tool System
-
-7. **Tools** (`AIAgent.Tools.Base`, `AIAgent.Tools.Function`)
-   - External tool integration
-   - Function wrapping with schema validation
-   - Predefined tool collections
-
-## Core Concepts
-
-### Agents
-
-Agents are the primary computational units with specific capabilities:
-
-```haskell
--- Create a simple calculation agent
-calculatorAgent :: Agent
-calculatorAgent = mkStatelessAgent "Calculator" [Computation] $ \input -> do
-  case (HM.lookup "operation" input, HM.lookup "a" input, HM.lookup "b" input) of
-    (Just (String op), Just (Number a), Just (Number b)) -> do
-      let result = case op of
-            "add" -> a + b
-            "subtract" -> a - b
-            "multiply" -> a * b
-            "divide" -> if b == 0 then 0 else a / b
-      return $ Right $ object ["result" .= result]
-    _ -> return $ Left "Invalid input"
-```
-
-### Graphs
-
-Build workflows as graphs with conditional routing:
-
-```haskell
--- Create a data processing workflow
-dataProcessingWorkflow :: IO Graph
-dataProcessingWorkflow = do
-  let validatorNode = mkIONode "validator" "Validate data" validateAction
-      filterNode = mkIONode "filter" "Filter data" filterAction
-      summaryNode = mkIONode "summary" "Summarize data" summaryAction
-  
-  let graph = emptyGraph
-              & addNode validatorNode
-              & addNode filterNode 
-              & addNode summaryNode
-              & addEdge "validator" "filter"
-              & addEdge "filter" "summary"
-  
-  return graph
-```
-
-### Conditional Routing
-
-Add conditional edges based on state:
-
-```haskell
--- Route based on validation results
-let validCondition = OnValue "valid" (Bool True)
-    invalidCondition = OnValue "valid" (Bool False)
-
-let graph = emptyGraph
-            & addNode validatorNode
-            & addNode processNode
-            & addNode errorNode
-            & addConditionalEdge "validator" "process" validCondition HM.empty
-            & addConditionalEdge "validator" "error" invalidCondition HM.empty
-```
-
-### Execution
-
-Execute graphs with different strategies:
-
-```haskell
--- Execute with parallel strategy
-state <- newAgentState (Just initialData)
-executor <- newExecutor graph state
-result <- executeWithStrategy executor Parallel
-
--- Monitor execution
-metrics <- getExecutionMetrics executor
-visualization <- visualizeExecution executor
-```
-
-## Examples
-
-### 1. Simple Calculator
-
-A basic workflow that performs arithmetic operations:
-
-```haskell
--- Input: {"operation": "add", "a": 10, "b": 5}
--- Output: {"result": 15, "operation": "add"}
-cabal run ai-agent-example simple
-```
-
-### 2. Data Processing Pipeline
-
-Sequential processing with validation, filtering, and summarization:
-
-```haskell
--- Input: {"data": [1, -2, 3, -4, 5]}
--- Validates → Filters → Summarizes data
-cabal run ai-agent-example data
-```
-
-### 3. Conditional Workflow
-
-Demonstrates conditional routing based on validation results:
-
-```haskell
--- Routes to different paths based on data validity
-cabal run ai-agent-example conditional
-```
-
-### 4. Parallel Processing
-
-Concurrent execution of independent operations:
-
-```haskell
--- Processes positive and negative numbers in parallel
-cabal run ai-agent-example parallel
-```
-
-## Advanced Features
-
-### Agent Combinators
-
-Chain and combine agents:
-
-```haskell
--- Chain agents sequentially
-chainAgents [agent1, agent2, agent3] input
-
--- Run agents in parallel
-parallelAgents [agent1, agent2, agent3] input
-
--- Add retry capability
-retryAgent 3 originalAgent
-
--- Create fallback chain
-fallbackAgent primaryAgent [fallback1, fallback2]
-```
-
-### Memory Management
-
-Agents can maintain memory across interactions:
-
-```haskell
--- Create agent with memory
-agent = mkStatefulAgent "ChatBot" [TextGeneration] $ \memory input -> do
-  -- Access previous interactions
-  history <- readTVarIO (memory ^. memoryShortTerm)
-  -- Store new information
-  addToMemory memory newValue
-  -- Return response
-  return $ Right response
-```
-
-### Tool Integration
-
-Wrap functions as tools:
-
-```haskell
--- Mathematical tools
-mathTools :: [FunctionTool]
-mathTools = [mkMathTool "add" (+), mkMathTool "multiply" (*)]
-
--- String manipulation tools  
-stringTools :: [FunctionTool]
-stringTools = [mkStringTool "uppercase" Text.toUpper]
-
--- Convert tools to agents
-toolAgent = combineTools (map funcTool mathTools)
-```
-
-### State Management
-
-Advanced state operations:
-
-```haskell
--- Create state with initial data
-state <- newAgentState (Just initialData)
-
--- Update with different modes
-updateState state updates Merge (Just "node_id")
-appendState state newValues (Just "node_id")
-
--- Take snapshots and rollback
-snapshot <- takeSnapshot state (Just "checkpoint")
-success <- rollbackToSnapshot state snapshotId
-
--- Serialize state
-json <- stateToJSON state
-```
-
-## Configuration
-
-### Graph Configuration
-
-```haskell
--- Customize execution behavior
-let config = GraphConfig
-      { _configStrategy = Parallel
-      , _configMaxParallel = 4
-      , _configTimeout = Just 30
-      , _configRetryCount = 3
-      , _configFailFast = True
-      }
-
-let graph = emptyGraph & graphConfig .~ config
-```
-
-### Agent Configuration
-
-```haskell
--- Configure agent behavior
-let config = AgentConfig
-      { _configMaxRetries = 3
-      , _configTimeout = Just 30
-      , _configVerbose = True
-      , _configMemoryEnabled = True
-      }
-
-let agent = baseAgent & agentConfig .~ config
-```
-
-## Error Handling
-
-The framework provides comprehensive error handling:
-
-```haskell
--- Node execution errors
-data NodeError = NodeError
-  { _errorMessage :: Text
-  , _errorCode :: Maybe Text
-  , _errorDetails :: Maybe Value
-  , _errorTimestamp :: UTCTime
-  }
-
--- Execution errors
-data ExecutionError = ExecutionError
-  { _execErrorNode :: NodeId
-  , _execErrorMessage :: Text
-  , _execErrorTime :: UTCTime
-  }
-
--- Check for errors
-hasErrors <- hasExecutionErrors executor
-failedNodes <- getFailedNodes executor
-```
-
-## Monitoring & Metrics
-
-Track execution performance:
-
-```haskell
--- Execution metrics
-data ExecutionMetrics = ExecutionMetrics
-  { _metricsStartTime :: UTCTime
-  , _metricsNodesExecuted :: Int
-  , _metricsNodesFailed :: Int
-  , _metricsTotalDuration :: Maybe NominalDiffTime
-  , _metricsNodeDurations :: HashMap NodeId NominalDiffTime
-  }
-
--- Get metrics
-metrics <- getExecutionMetrics executor
-history <- getNodeExecutionHistory executor
-visualization <- visualizeExecution executor
-```
-
-## Testing
-
-Run the test suite:
-
-```bash
-cabal test
-```
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## Future Roadmap
-
-- [ ] **LLM Integration**: Real OpenAI/Anthropic API integration
-- [ ] **Persistence**: Database backends for state and memory
-- [ ] **Distributed Execution**: Remote agent execution
-- [ ] **Web Interface**: Browser-based workflow designer
-- [ ] **Streaming**: Support for streaming responses
-- [ ] **Plugin System**: Dynamic loading of agents and tools
-- [ ] **Debugging Tools**: Step-through debugging and visualization
-- [ ] **Performance Optimization**: Compilation to efficient execution graphs
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Acknowledgments
-
-- Inspired by [LangGraph](https://github.com/langchain-ai/langgraph) from LangChain
-- Built with Haskell's powerful type system and STM concurrency
-- Uses lens for elegant data manipulation
-- Leverages Aeson for JSON serialization
-
-## Contact
-
-For questions, suggestions, or contributions, please open an issue on GitHub.
+## 📚 Learning Path Recommendation
+
+### **Foundation Track**
+1. **Start with fundamentals**: `five-fundamental-monads.hs`
+2. **Understand IO and side effects**: `io-side-effects.hs`
+3. **Master error handling**: `exception-handling.hs`
+4. **Learn effect composition**: `effect-systems.hs`
+
+### **Advanced Track**
+5. **Explore type safety**: `type-level-programming.hs`
+6. **Understand laziness**: `lazy-infinite-structures.hs`
+7. **Master concurrency**: `advanced-concurrency.hs` + `software-transactional-memory.hs`
+8. **Resource management**: `resource-management.hs`
+
+### **Expert Track**
+9. **Master abstractions**: `category-theory-practice.hs`
+10. **Build DSLs**: `free-monads-dsl.hs`
+11. **Advanced techniques**: `metaprogramming-generics.hs`
+
+## 🎓 What Makes Haskell Unique
+
+- **Zero-cost abstractions**: High-level code compiles to efficient machine code
+- **Type inference**: Write less, express more with automatic type deduction
+- **Lazy by default**: Elegant solutions to complex problems
+- **Mathematical foundation**: Based on solid theoretical principles
+- **Composability**: Small pieces combine into powerful systems
+- **Safety**: Many runtime errors become compile-time errors
+- **Effect control**: Side effects are tracked in the type system, ensuring predictable behavior
+- **Concurrency excellence**: STM and async provide safe, composable concurrent programming
+- **Pure functional core**: Referential transparency enables powerful optimization and reasoning
+
+These examples demonstrate that Haskell isn't just an academic language—it's a powerful tool for building robust, efficient, and maintainable software systems.
 
 ---
 
-*Built with ❤️ in Haskell*
+*Explore the code, experiment with the examples, and discover the elegance and power of functional programming with Haskell!*
