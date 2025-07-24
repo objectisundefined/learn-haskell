@@ -1,0 +1,69 @@
+cabal-version: 3.0
+name: ai-agent-framework
+version: 0.1.0.0
+synopsis: A LangGraph-like AI agent framework in Haskell
+description: A functional, type-safe framework for building AI agent workflows with state management, graph execution, and composable agents.
+homepage: https://github.com/example/ai-agent-framework
+license: MIT
+author: AI Assistant
+maintainer: example@example.com
+copyright: 2024
+category: AI, Graph, Framework
+build-type: Simple
+
+library
+  exposed-modules:
+    AIAgent.Core.State
+    AIAgent.Core.Node
+    AIAgent.Core.Graph
+    AIAgent.Core.Executor
+    AIAgent.Agents.Base
+    AIAgent.Agents.LLM
+    AIAgent.Tools.Base
+    AIAgent.Tools.Function
+    AIAgent.Examples.Simple
+    AIAgent.Examples.ChatBot
+  build-depends:
+    base >= 4.7 && < 5,
+    containers >= 0.6,
+    mtl >= 2.2,
+    transformers >= 0.5,
+    aeson >= 2.0,
+    text >= 1.2,
+    bytestring >= 0.10,
+    time >= 1.9,
+    uuid >= 1.3,
+    stm >= 2.5,
+    async >= 2.2,
+    free >= 5.1,
+    lens >= 5.0,
+    monad-logger >= 0.3,
+    unordered-containers >= 0.2
+  hs-source-dirs: src
+  default-language: Haskell2010
+  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
+
+executable ai-agent-example
+  main-is: Main.hs
+  build-depends:
+    base >= 4.7 && < 5,
+    ai-agent-framework
+  hs-source-dirs: app
+  default-language: Haskell2010
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+
+test-suite ai-agent-framework-test
+  type: exitcode-stdio-1.0
+  main-is: Spec.hs
+  other-modules:
+    StateSpec
+    NodeSpec
+    GraphSpec
+  build-depends:
+    base >= 4.7 && < 5,
+    ai-agent-framework,
+    hspec >= 2.7,
+    QuickCheck >= 2.14
+  hs-source-dirs: test
+  default-language: Haskell2010
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
