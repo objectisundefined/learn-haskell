@@ -73,7 +73,8 @@ def validate_framework():
         ("ai-agent-framework.cabal", "Cabal project file"),
         ("app/Main.hs", "Main executable"),
         ("src/", "Source directory"),
-        ("README.md", "Documentation"),
+        ("README.md", "Original documentation"),
+        ("AI_AGENT.md", "AI Agent Framework documentation"),
     ]
     
     for filepath, description in structure_checks:
