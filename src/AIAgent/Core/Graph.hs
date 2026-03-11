@@ -1,12 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE GADTs #-}
-{-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE TypeFamilies #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE TemplateHaskell #-}
-{-# LANGUAGE DeriveFunctor #-}
+{-# LANGUAGE FlexibleInstances #-}
 
 module AIAgent.Core.Graph
   ( -- * Graph Types
@@ -65,10 +59,9 @@ import Data.HashMap.Strict (HashMap)
 import qualified Data.HashMap.Strict as HM
 import Data.HashSet (HashSet)
 import qualified Data.HashSet as HS
+import Data.Maybe (fromMaybe)
 import Data.Text (Text)
 import qualified Data.Text as Text
-import Data.Maybe (fromMaybe, mapMaybe)
-import Data.List (nub)
 
 import AIAgent.Core.Node
 import AIAgent.Core.State
@@ -99,6 +92,14 @@ data EdgeCondition
   | OnCondition (HashMap Text Value -> Bool)  -- ^ Custom condition based on state
   | OnValue Text Value                        -- ^ If state key equals value
 
+instance Show EdgeCondition where
+  show Always            = "Always"
+  show Never             = "Never"
+  show OnSuccess         = "OnSuccess"
+  show OnFailure         = "OnFailure"
+  show (OnCondition _)   = "OnCondition(...)"
+  show (OnValue key val) = "OnValue(" ++ Text.unpack key ++ ", " ++ show val ++ ")"
+
 -- | An edge connecting two nodes with optional conditions
 data Edge = Edge
   { _edgeFrom      :: NodeId
@@ -127,14 +128,6 @@ data Graph = Graph
 makeLenses ''GraphConfig
 makeLenses ''Edge
 makeLenses ''Graph
-
-instance Show EdgeCondition where
-  show Always = "Always"
-  show Never = "Never"
-  show OnSuccess = "OnSuccess"
-  show OnFailure = "OnFailure"
-  show (OnCondition _) = "OnCondition(...)"
-  show (OnValue key val) = "OnValue(" ++ Text.unpack key ++ ", " ++ show val ++ ")"
 
 -- | Create an empty graph with default configuration
 emptyGraph :: Graph
@@ -185,12 +178,12 @@ getEdges graph = _graphEdges graph
 
 -- | Get successor nodes of a given node
 getSuccessors :: NodeId -> Graph -> [NodeId]
-getSuccessors nodeId graph = 
+getSuccessors nodeId graph =
   [_edgeTo edge | edge <- _graphEdges graph, _edgeFrom edge == nodeId]
 
 -- | Get predecessor nodes of a given node
 getPredecessors :: NodeId -> Graph -> [NodeId]
-getPredecessors nodeId graph = 
+getPredecessors nodeId graph =
   [_edgeFrom edge | edge <- _graphEdges graph, _edgeTo edge == nodeId]
 
 -- | Get nodes with no predecessors (start nodes)
@@ -209,24 +202,24 @@ getEndNodes graph =
 
 -- | Validate the graph structure
 validateGraph :: Graph -> Either [GraphValidationError] ()
-validateGraph graph = do
+validateGraph graph =
   let errors = concat
         [ validateNodesExist graph
         , validateNoCircularDependencies graph
         , validateNotEmpty graph
         ]
-  if null errors
-    then Right ()
-    else Left errors
+  in if null errors
+       then Right ()
+       else Left errors
 
 -- | Check if all edge references point to existing nodes
 validateNodesExist :: Graph -> [GraphValidationError]
 validateNodesExist graph =
   let nodeIds = HS.fromList $ HM.keys (_graphNodes graph)
       edges = _graphEdges graph
-      invalidEdges = filter (\edge -> 
+      invalidEdges = filter (\edge ->
         _edgeFrom edge `HS.notMember` nodeIds || _edgeTo edge `HS.notMember` nodeIds) edges
-  in concatMap (\edge -> 
+  in concatMap (\edge ->
       [ NodeNotFound (_edgeFrom edge) | _edgeFrom edge `HS.notMember` nodeIds ] ++
       [ NodeNotFound (_edgeTo edge) | _edgeTo edge `HS.notMember` nodeIds ]) invalidEdges
 
@@ -251,23 +244,23 @@ hasCircularDependency graph = detectCycle (HM.keys $ _graphNodes graph) HS.empty
     detectCycle :: [NodeId] -> HashSet NodeId -> [NodeId] -> Maybe [NodeId]
     detectCycle [] _ _ = Nothing
     detectCycle (node:rest) visited path
-      | node `HS.member` visited = 
+      | node `HS.member` visited =
           case dropWhile (/= node) path of
             [] -> detectCycle rest visited path
             cycle -> Just (node : cycle)
-      | otherwise = 
+      | otherwise =
           let successors = getSuccessors node graph
               newVisited = HS.insert node visited
               newPath = node : path
           in case detectCycle successors newVisited newPath of
                Just cycle -> Just cycle
-               Nothing -> detectCycle rest (HS.delete node newVisited) (tail path)
+               Nothing -> detectCycle rest (HS.delete node newVisited) path
 
 -- | Check if the graph is acyclic (DAG)
 isAcyclic :: Graph -> Bool
 isAcyclic graph = case hasCircularDependency graph of
   Nothing -> True
-  Just _ -> False
+  Just _  -> False
 
 -- | Perform topological sort of the graph
 topologicalSort :: Graph -> Either [NodeId] [NodeId]
@@ -276,10 +269,10 @@ topologicalSort graph
   | otherwise = Right $ kahn graph
   where
     kahn :: Graph -> [NodeId]
-    kahn g = 
+    kahn g =
       let startNodes = getStartNodes g
       in topSort startNodes [] g
-    
+
     topSort :: [NodeId] -> [NodeId] -> Graph -> [NodeId]
     topSort [] result _ = reverse result
     topSort (node:queue) result g =
@@ -327,7 +320,7 @@ edgeCount graph = length (_graphEdges graph)
 
 -- | Generate a simple text visualization of the graph
 visualizeGraph :: Graph -> Text
-visualizeGraph graph = 
+visualizeGraph graph =
   let nodes = HM.keys (_graphNodes graph)
       edges = _graphEdges graph
       nodeLines = map (\nid -> "Node: " <> nid) nodes
