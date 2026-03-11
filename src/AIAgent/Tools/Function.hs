@@ -29,8 +29,9 @@ import qualified Data.HashMap.Strict as HM
 import Data.Text (Text)
 import qualified Data.Text as Text
 import qualified Data.Text.IO as TIO
-import System.Directory
-import System.FilePath
+import qualified Data.Vector as V
+import System.Directory (doesFileExist, getFileSize)
+import System.FilePath (takeExtension)
 
 import AIAgent.Tools.Base
 
@@ -128,7 +129,7 @@ mathTools =
   ]
   where
     safeDiv a b = if b == 0 then 0 else a / b
-    sqrtFunc (Number n) = Number (realToFrac $ sqrt $ realToFrac n)
+    sqrtFunc (Number n) = Number (realToFrac (sqrt (realToFrac n :: Double)))
     sqrtFunc _ = String "Invalid input for sqrt"
     absFunc (Number n) = Number (abs n)
     absFunc _ = String "Invalid input for abs"
@@ -144,7 +145,7 @@ stringTools =
   ]
   where
     concatFunc (Array values) = 
-      let strings = [s | String s <- values]
+      let strings = [s | String s <- V.toList values]
       in String $ Text.concat strings
     concatFunc _ = String "Invalid input for concat"
 
