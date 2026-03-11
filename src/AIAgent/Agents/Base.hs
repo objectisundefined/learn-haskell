@@ -228,14 +228,13 @@ runAgentWithMemory agent memory input = liftIO $ do
 
 -- | Chain multiple agents together (output of one becomes input of next)
 chainAgents :: MonadIO m => [Agent] -> HashMap Text Value -> m (Either Text Value)
-chainAgents [] input = return $ Right $ Object input
+chainAgents [] input = return $ Right $ Object (hmToObject input)
 chainAgents (agent:rest) input = liftIO $ do
   result <- runAgent agent input
   case result of
     Left err -> return $ Left err
-    Right (Object nextInput) -> chainAgents rest nextInput
-    Right value -> 
-      -- Convert single value to input for next agent
+    Right (Object nextInput) -> chainAgents rest (objectToHm nextInput)
+    Right value ->
       let nextInput = HM.insert "input" value input
       in chainAgents rest nextInput
 
