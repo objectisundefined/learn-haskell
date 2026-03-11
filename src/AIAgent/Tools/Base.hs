@@ -1,4 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 module AIAgent.Tools.Base
   ( -- * Tool Types
@@ -21,13 +22,16 @@ module AIAgent.Tools.Base
   , combineTools
   ) where
 
-import Control.Concurrent.Async
-import Control.Exception
-import Data.Aeson
+import Control.Concurrent (threadDelay)
+import Control.Concurrent.Async (race)
+import Control.Exception (SomeException, try)
+import Data.Aeson (Value(..))
 import Data.HashMap.Strict (HashMap)
 import qualified Data.HashMap.Strict as HM
+import Data.List (find)
 import Data.Text (Text)
-import Data.Time
+import qualified Data.Text as Text
+import Data.Time (UTCTime, getCurrentTime)
 
 import AIAgent.Agents.Base
 
@@ -101,17 +105,17 @@ executeTool tool input = do
   let retries = toolRetries (toolConfig tool)
   executeWithRetries (toolAction tool) input retries
   where
-    executeWithRetries action input retryCount
+    executeWithRetries action params retryCount
       | retryCount <= 0 = do
           timestamp <- getCurrentTime
           return $ Left $ ToolError "Maximum retries exceeded" (Just "MAX_RETRIES") timestamp
       | otherwise = do
-          result <- try (action input)
+          result <- try (action params)
           case result of
             Left (ex :: SomeException) -> do
               timestamp <- getCurrentTime
               if retryCount > 1
-                then executeWithRetries action input (retryCount - 1)
+                then executeWithRetries action params (retryCount - 1)
                 else return $ Left $ ToolError (Text.pack $ show ex) (Just "EXCEPTION") timestamp
             Right success -> return success
 
@@ -140,23 +144,12 @@ toolToAgent tool = mkStatelessAgent (toolName tool) [ToolUsage] $ \input -> do
 combineTools :: [Tool] -> Agent
 combineTools tools = mkStatelessAgent "CombinedTools" [ToolUsage] $ \input -> do
   case HM.lookup "tool" input of
-    Just (String toolName) -> 
-      case findTool toolName tools of
+    Just (String name) ->
+      case find (\t -> toolName t == name) tools of
         Just tool -> do
           result <- executeTool tool input
           case result of
             Left err -> return $ Left (toolErrorMessage err)
             Right success -> return $ Right (toolResultData success)
-        Nothing -> return $ Left $ "Tool not found: " <> toolName
+        Nothing -> return $ Left $ "Tool not found: " <> name
     _ -> return $ Left "No tool specified in input"
-  where
-    findTool :: Text -> [Tool] -> Maybe Tool
-    findTool name = find (\t -> toolName t == name)
-    
-    find :: (a -> Bool) -> [a] -> Maybe a
-    find _ [] = Nothing
-    find p (x:xs) = if p x then Just x else find p xs
-
--- Required imports
-import Control.Concurrent (threadDelay)
-import Control.Concurrent.Async (race)
