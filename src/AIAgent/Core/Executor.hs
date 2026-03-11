@@ -1,10 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE GADTs #-}
-{-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE TemplateHaskell #-}
 
 module AIAgent.Core.Executor
@@ -52,9 +47,8 @@ module AIAgent.Core.Executor
 
 import Control.Concurrent.Async
 import Control.Concurrent.STM
-import Control.Exception
 import Control.Lens
-import Control.Monad
+import Control.Monad (filterM, unless, when, void)
 import Control.Monad.IO.Class
 import Data.Aeson
 import Data.HashMap.Strict (HashMap)
@@ -64,9 +58,6 @@ import qualified Data.HashSet as HS
 import Data.Text (Text)
 import qualified Data.Text as Text
 import Data.Time
-import Data.Maybe (fromMaybe, mapMaybe, catMaybes)
-import Data.List (sortBy)
-import Data.Ord (comparing)
 
 import AIAgent.Core.State
 import AIAgent.Core.Node
@@ -97,7 +88,7 @@ data ExecutionResult = ExecutionResult
   , _resultState   :: AgentState
   , _resultMetrics :: ExecutionMetrics
   , _resultErrors  :: [ExecutionError]
-  } deriving (Show)
+  }
 
 -- | The graph executor manages execution state and provides control
 data GraphExecutor = GraphExecutor
@@ -128,6 +119,13 @@ makeLenses ''GraphExecutor
 
 instance Show GraphExecutor where
   show _ = "GraphExecutor{...}"
+
+-- AgentState contains TVars which cannot derive Show
+instance Show ExecutionResult where
+  show er = "ExecutionResult { nodes = " ++ show (HM.size (_resultNodes er))
+         ++ ", metrics = " ++ show (_resultMetrics er)
+         ++ ", errors = " ++ show (_resultErrors er)
+         ++ " }"
 
 -- | Create a new graph executor
 newExecutor :: MonadIO m => Graph -> AgentState -> m GraphExecutor
@@ -171,10 +169,10 @@ executeGraph executor = liftIO $ do
       
       -- Execute based on strategy
       case _configStrategy config of
-        Sequential -> executeSequential executor
-        Parallel -> executeParallel executor
+        Sequential  -> executeSequential executor
+        Parallel    -> executeParallel executor
         Conditional -> executeConditional executor
-        Custom -> executeCustom executor
+        Custom      -> executeCustom executor
       
       -- Set completion status
       errors <- readTVarIO (_executorErrors executor)
@@ -221,7 +219,7 @@ executeParallelNodes executor sem ready executed = do
     
     -- Convert ready set to list and execute in parallel
     let readyList = HS.toList ready
-    asyncActions <- mapM (\nodeId -> async $ do
+    asyncActions <- mapM (\nid -> async $ do
       -- Wait for semaphore
       atomically $ do
         count <- readTVar sem
@@ -230,12 +228,12 @@ executeParallelNodes executor sem ready executed = do
           else retry
       
       -- Execute node
-      result <- executeNode executor nodeId
+      result <- executeNode executor nid
       
       -- Release semaphore
       atomically $ modifyTVar sem (+1)
       
-      return (nodeId, result)
+      return (nid, result)
     ) readyList
     
     -- Wait for all to complete
@@ -247,8 +245,8 @@ executeParallelNodes executor sem ready executed = do
     -- Find next ready nodes
     let allNodes = HS.fromList $ HM.keys (_graphNodes graph)
         remainingNodes = HS.difference allNodes newExecuted
-        nextReady = HS.filter (\nodeId -> 
-          let predecessors = HS.fromList $ getPredecessors nodeId graph
+        nextReady = HS.filter (\nid -> 
+          let predecessors = HS.fromList $ getPredecessors nid graph
           in HS.isSubsetOf predecessors newExecuted) remainingNodes
     
     -- Continue with next batch
@@ -263,20 +261,20 @@ executeConditional executor = do
 
 -- | Execute conditionally from a specific node
 executeConditionalFrom :: GraphExecutor -> HashSet NodeId -> NodeId -> IO ()
-executeConditionalFrom executor visited nodeId = do
-  unless (nodeId `HS.member` visited) $ do
+executeConditionalFrom executor visited nid = do
+  unless (nid `HS.member` visited) $ do
     -- Execute current node
-    result <- executeNode executor nodeId
+    result <- executeNode executor nid
     
     -- Check edges and execute successors based on conditions
     graph <- readTVarIO (_executorGraph executor)
-    agentState <- return $ _executorState executor
+    let agentState = _executorState executor
     currentState <- getState agentState
     
-    let edges = filter (\edge -> _edgeFrom edge == nodeId) (_graphEdges graph)
+    let edges = filter (\edge -> _edgeFrom edge == nid) (_graphEdges graph)
     validEdges <- filterM (evaluateEdgeCondition currentState result) edges
     
-    let newVisited = HS.insert nodeId visited
+    let newVisited = HS.insert nid visited
         successors = map _edgeTo validEdges
     
     mapM_ (executeConditionalFrom executor newVisited) successors
@@ -293,18 +291,20 @@ evaluateEdgeCondition state result edge =
     OnValue key expectedValue -> 
       return $ HM.lookup key state == Just expectedValue
 
--- | Custom execution strategy (placeholder)
+-- | Fallback executor for custom strategies.
+-- Defaults to sequential execution. Override with a domain-specific
+-- strategy by wrapping or replacing this function as needed.
 executeCustom :: GraphExecutor -> IO ()
-executeCustom executor = executeSequential executor  -- Default to sequential
+executeCustom = executeSequential
 
 -- | Execute a single node
 executeNode :: GraphExecutor -> NodeId -> IO NodeResult
-executeNode executor nodeId = do
+executeNode executor nid = do
   graph <- readTVarIO (_executorGraph executor)
-  case getNode nodeId graph of
+  case getNode nid graph of
     Nothing -> do
       timestamp <- getCurrentTime
-      let nodeError = NodeError ("Node not found: " <> nodeId) Nothing Nothing timestamp
+      let nodeError = NodeError ("Node not found: " <> nid) Nothing Nothing timestamp
       return $ NodeResult Failed Nothing (Just nodeError) HM.empty
     Just node -> do
       startTime <- getCurrentTime
@@ -314,24 +314,24 @@ executeNode executor nodeId = do
       let duration = diffUTCTime endTime startTime
       
       -- Update results
-      atomically $ modifyTVar (_executorResults executor) (HM.insert nodeId result)
+      atomically $ modifyTVar (_executorResults executor) (HM.insert nid result)
       
       -- Update metrics
       atomically $ modifyTVar (_executorMetrics executor) $ \metrics ->
         metrics & metricsNodesExecuted %~ (+1)
-                & metricsNodeDurations %~ HM.insert nodeId duration
-                & (if _resultStatus result == Failed then metricsNodesFailed else id) %~ (+1)
+                & metricsNodeDurations %~ HM.insert nid duration
+                & (if _resultStatus result == Failed then metricsNodesFailed %~ (+1) else id)
       
       -- Add error if failed
       when (_resultStatus result == Failed) $ do
         case _resultError result of
           Just nodeErr -> do
-            let execError = ExecutionError nodeId (_errorMessage nodeErr) 
+            let execError = ExecutionError nid (_errorMessage nodeErr) 
                                          (_errorTimestamp nodeErr) (_errorDetails nodeErr)
             atomically $ modifyTVar (_executorErrors executor) (execError :)
           Nothing -> do
             timestamp <- getCurrentTime
-            let execError = ExecutionError nodeId "Unknown error" timestamp Nothing
+            let execError = ExecutionError nid "Unknown error" timestamp Nothing
             atomically $ modifyTVar (_executorErrors executor) (execError :)
       
       return result
@@ -340,7 +340,7 @@ executeNode executor nodeId = do
 executeFromNode :: MonadIO m => GraphExecutor -> NodeId -> m ExecutionResult
 executeFromNode executor startNodeId = liftIO $ do
   atomically $ writeTVar (_executorStatus executor) Running
-  _ <- executeNode executor startNodeId
+  void $ executeNode executor startNodeId
   atomically $ writeTVar (_executorStatus executor) Completed
   updateFinalMetrics executor
   buildResult executor
@@ -379,14 +379,15 @@ executeWithStrategy executor strategy = liftIO $ do
   
   return result
 
--- | Pause execution (placeholder - would need more sophisticated control)
+-- | Pause execution by setting the status to Paused.
+-- Cooperative: running nodes complete before observing the pause.
 pauseExecution :: MonadIO m => GraphExecutor -> m ()
-pauseExecution executor = liftIO $ 
+pauseExecution executor = liftIO $
   atomically $ writeTVar (_executorStatus executor) Paused
 
--- | Resume execution (placeholder)
+-- | Resume execution by setting the status back to Running.
 resumeExecution :: MonadIO m => GraphExecutor -> m ()
-resumeExecution executor = liftIO $ 
+resumeExecution executor = liftIO $
   atomically $ writeTVar (_executorStatus executor) Running
 
 -- | Cancel execution
@@ -415,8 +416,8 @@ visualizeExecution executor = liftIO $ do
   metrics <- readTVarIO (_executorMetrics executor)
   errors <- readTVarIO (_executorErrors executor)
   
-  let resultLines = map (\(nodeId, result) -> 
-        nodeId <> ": " <> Text.pack (show (_resultStatus result))) (HM.toList results)
+  let resultLines = map (\(nid, result) -> 
+        nid <> ": " <> Text.pack (show (_resultStatus result))) (HM.toList results)
       errorLines = map (\err -> "ERROR " <> _execErrorNode err <> ": " <> _execErrorMessage err) errors
       metricsLines = 
         [ "Nodes Executed: " <> Text.pack (show (_metricsNodesExecuted metrics))
