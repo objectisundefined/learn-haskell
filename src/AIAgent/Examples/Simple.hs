@@ -20,13 +20,13 @@ module AIAgent.Examples.Simple
   , runParallelExample
   ) where
 
-import Control.Monad.IO.Class
+import Control.Lens ((&), (.~))
 import Data.Aeson
 import Data.HashMap.Strict (HashMap)
 import qualified Data.HashMap.Strict as HM
 import Data.Text (Text)
 import qualified Data.Text as Text
-import Data.Scientific (Scientific, fromFloatDigits, toRealFloat)
+import qualified Data.Vector as V
 
 import AIAgent.Core.State
 import AIAgent.Core.Node
@@ -52,7 +52,8 @@ calculatorAgent = mkStatelessAgent "Calculator" [Computation] $ \input -> do
 dataFilterAgent :: Agent
 dataFilterAgent = mkStatelessAgent "DataFilter" [DataRetrieval, Computation] $ \input -> do
   case HM.lookup "data" input of
-    Just (Array items) -> do
+    Just (Array itemsVec) -> do
+      let items = V.toList itemsVec
       case HM.lookup "filter" input of
         Just (String "positive") -> do
           let positiveNumbers = filter isPositiveNumber items
@@ -73,8 +74,9 @@ dataFilterAgent = mkStatelessAgent "DataFilter" [DataRetrieval, Computation] $ \
 summaryAgent :: Agent
 summaryAgent = mkStatelessAgent "Summary" [TextGeneration, Computation] $ \input -> do
   case HM.lookup "data" input of
-    Just (Array items) -> do
-      let numbers = [n | Number n <- items]
+    Just (Array itemsVec) -> do
+      let items = V.toList itemsVec
+          numbers = [n | Number n <- items]
           count = length numbers
           total = sum numbers
           average = if count > 0 then total / fromIntegral count else 0
@@ -91,8 +93,9 @@ summaryAgent = mkStatelessAgent "Summary" [TextGeneration, Computation] $ \input
 validationAgent :: Agent
 validationAgent = mkStatelessAgent "Validator" [DecisionMaking] $ \input -> do
   case HM.lookup "data" input of
-    Just (Array items) -> do
-      let allNumbers = all isNumber items
+    Just (Array itemsVec) -> do
+      let items = V.toList itemsVec
+          allNumbers = all isNumber items
           nonEmpty = not (null items)
           valid = allNumbers && nonEmpty
       return $ Right $ object 
@@ -258,7 +261,7 @@ runDataProcessingExample = do
   putStrLn "\n=== Data Processing Example ==="
   
   -- Create initial state with sample data
-  let sampleData = Array [Number 1, Number (-2), Number 3, Number (-4), Number 5]
+  let sampleData = Array (V.fromList [Number 1, Number (-2), Number 3, Number (-4), Number 5])
       initialData = HM.fromList [("data", sampleData)]
   
   state <- newAgentState (Just initialData)
@@ -282,7 +285,7 @@ runConditionalExample = do
   
   -- Test with valid data
   putStrLn "Testing with valid data:"
-  let validData = Array [Number 1, Number 2, Number 3]
+  let validData = Array (V.fromList [Number 1, Number 2, Number 3])
       initialData = HM.fromList [("data", validData)]
   
   state <- newAgentState (Just initialData)
@@ -295,7 +298,7 @@ runConditionalExample = do
   
   -- Test with invalid data
   putStrLn "\nTesting with invalid data:"
-  let invalidData = Array [String "not", String "numbers"]
+  let invalidData = Array (V.fromList [String "not", String "numbers"])
       invalidInitialData = HM.fromList [("data", invalidData)]
   
   state2 <- newAgentState (Just invalidInitialData)
@@ -310,7 +313,7 @@ runParallelExample :: IO ()
 runParallelExample = do
   putStrLn "\n=== Parallel Processing Example ==="
   
-  let mixedData = Array [Number 1, Number (-2), Number 3, Number (-4), Number 5]
+  let mixedData = Array (V.fromList [Number 1, Number (-2), Number 3, Number (-4), Number 5])
       initialData = HM.fromList [("data", mixedData)]
   
   state <- newAgentState (Just initialData)
