@@ -191,14 +191,14 @@ getStartNodes :: Graph -> [NodeId]
 getStartNodes graph =
   let allNodes = HM.keys (_graphNodes graph)
       nodesWithPredecessors = HS.fromList [_edgeTo edge | edge <- _graphEdges graph]
-  in filter (`HS.notMember` nodesWithPredecessors) allNodes
+  in filter (\n -> not (HS.member n nodesWithPredecessors)) allNodes
 
 -- | Get nodes with no successors (end nodes)
 getEndNodes :: Graph -> [NodeId]
 getEndNodes graph =
   let allNodes = HM.keys (_graphNodes graph)
       nodesWithSuccessors = HS.fromList [_edgeFrom edge | edge <- _graphEdges graph]
-  in filter (`HS.notMember` nodesWithSuccessors) allNodes
+  in filter (\n -> not (HS.member n nodesWithSuccessors)) allNodes
 
 -- | Validate the graph structure
 validateGraph :: Graph -> Either [GraphValidationError] ()
@@ -218,10 +218,10 @@ validateNodesExist graph =
   let nodeIds = HS.fromList $ HM.keys (_graphNodes graph)
       edges = _graphEdges graph
       invalidEdges = filter (\edge ->
-        _edgeFrom edge `HS.notMember` nodeIds || _edgeTo edge `HS.notMember` nodeIds) edges
+        not (HS.member (_edgeFrom edge) nodeIds) || not (HS.member (_edgeTo edge) nodeIds)) edges
   in concatMap (\edge ->
-      [ NodeNotFound (_edgeFrom edge) | _edgeFrom edge `HS.notMember` nodeIds ] ++
-      [ NodeNotFound (_edgeTo edge) | _edgeTo edge `HS.notMember` nodeIds ]) invalidEdges
+      [ NodeNotFound (_edgeFrom edge) | not (HS.member (_edgeFrom edge) nodeIds) ] ++
+      [ NodeNotFound (_edgeTo edge) | not (HS.member (_edgeTo edge) nodeIds) ]) invalidEdges
 
 -- | Check for circular dependencies
 validateNoCircularDependencies :: Graph -> [GraphValidationError]

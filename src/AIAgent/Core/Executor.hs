@@ -219,22 +219,16 @@ executeParallelNodes executor sem ready executed = do
     
     -- Convert ready set to list and execute in parallel
     let readyList = HS.toList ready
-    asyncActions <- mapM (\nid -> async $ do
-      -- Wait for semaphore
-      atomically $ do
-        count <- readTVar sem
-        if count > 0
-          then writeTVar sem (count - 1)
-          else retry
-      
-      -- Execute node
-      result <- executeNode executor nid
-      
-      -- Release semaphore
-      atomically $ modifyTVar sem (+1)
-      
-      return (nid, result)
-    ) readyList
+    let runOne nid = do
+          atomically $ do
+            count <- readTVar sem
+            if count > 0
+              then writeTVar sem (count - 1)
+              else retry
+          result <- executeNode executor nid
+          atomically $ modifyTVar sem (+1)
+          return (nid, result)
+    asyncActions <- mapM (\nid -> async (runOne nid)) readyList
     
     -- Wait for all to complete
     results <- mapM wait asyncActions

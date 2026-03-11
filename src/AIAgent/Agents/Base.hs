@@ -52,7 +52,7 @@ module AIAgent.Agents.Base
 import Control.Concurrent.Async (mapConcurrently)
 import Control.Concurrent.STM
 import Control.Exception
-import Control.Lens
+import Control.Lens hiding ((.=))
 import Control.Monad.IO.Class
 import Data.Aeson
 import Data.HashMap.Strict (HashMap)
@@ -61,7 +61,6 @@ import Data.Text (Text)
 import qualified Data.Text as Text
 
 import AIAgent.Core.State
-import AIAgent.Core.Node
 
 -- | Agent capabilities that describe what an agent can do
 data AgentCapability
