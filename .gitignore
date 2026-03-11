@@ -1,1 +1,10 @@
 .DS_Store
+dist-newstyle/
+*.hi
+*.o
+*.dyn_hi
+*.dyn_o
+.cabal-sandbox/
+cabal.sandbox.config
+cabal.project.local
+.ghc.environment.*

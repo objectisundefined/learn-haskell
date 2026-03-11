@@ -135,12 +135,12 @@ setState agentState key value mode _nodeId = liftIO $ atomically $ do
   let newData = case mode of
         Replace -> HM.insert key value currentData
         Merge   -> case (HM.lookup key currentData, value) of
-          (Just (Object existing), Object new_) ->
-            HM.insert key (Object $ existing <> new_) currentData
+          (Just (Object existing), Object incoming) ->
+            HM.insert key (Object $ existing <> incoming) currentData
           _ -> HM.insert key value currentData
         Append  -> case HM.lookup key currentData of
           Just (Array existing) -> case value of
-            Array new_ -> HM.insert key (Array $ existing <> new_) currentData
+            Array incoming -> HM.insert key (Array $ existing <> incoming) currentData
             single     -> HM.insert key (Array $ existing <> V.singleton single) currentData
           Just existing -> HM.insert key (Array $ V.fromList [existing, value]) currentData
           Nothing       -> HM.insert key (Array $ V.singleton value) currentData
