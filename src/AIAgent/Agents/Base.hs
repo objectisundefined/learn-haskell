@@ -1,10 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE GADTs #-}
-{-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE TemplateHaskell #-}
 
 module AIAgent.Agents.Base
@@ -52,6 +49,7 @@ module AIAgent.Agents.Base
   , getAgentInfo
   ) where
 
+import Control.Concurrent.Async (mapConcurrently)
 import Control.Concurrent.STM
 import Control.Exception
 import Control.Lens
@@ -61,9 +59,6 @@ import Data.HashMap.Strict (HashMap)
 import qualified Data.HashMap.Strict as HM
 import Data.Text (Text)
 import qualified Data.Text as Text
-import Data.Time
-import Data.UUID (UUID)
-import qualified Data.UUID.V4 as UUID
 
 import AIAgent.Core.State
 import AIAgent.Core.Node
@@ -97,7 +92,10 @@ data AgentMemory = AgentMemory
   { _memoryShortTerm  :: TVar [Value]         -- ^ Recent interactions
   , _memoryLongTerm   :: TVar (HashMap Text Value)  -- ^ Persistent knowledge
   , _memoryWorkingSet :: TVar (HashMap Text Value)  -- ^ Current working context
-  } deriving (Show)
+  }
+
+instance Show AgentMemory where
+  show _ = "AgentMemory { shortTerm = <TVar>, longTerm = <TVar>, workingSet = <TVar> }"
 
 -- | The main agent interface
 data Agent = Agent
@@ -251,7 +249,7 @@ retryAgent :: Int -> Agent -> Agent
 retryAgent maxRetries agent = 
   agent & agentConfig . configMaxRetries .~ maxRetries
 
--- | Create a timeout agent wrapper (placeholder - would need async timeout)
+-- | Create a timeout agent wrapper
 timeoutAgent :: Int -> Agent -> Agent
 timeoutAgent timeoutSeconds agent = 
   agent & agentConfig . configTimeout .~ Just timeoutSeconds
@@ -303,6 +301,3 @@ getAgentInfo agent = object
       , "verbose" .= _configVerbose (_agentConfig agent)
       ]
   ]
-
--- Utility import
-import Control.Concurrent.Async (mapConcurrently)
